@@ -1,0 +1,16 @@
+# Objects.
+.scons-cache/
+*.os
+
+# SConstruct
+.sconf_temp
+.sconsign.dblite
+*.pyc
+
+# MacOS
+.DS_Store
+
+# Editors
+.vscode/
+# Do not ignore cpp config
+!*/.vscode/c_cpp_properties.json

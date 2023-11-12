@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="16"
+   viewBox="0 0 16 16"
+   width="16"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="MultiMeshInstance3D_2.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="64"
+     inkscape:cx="6.2265625"
+     inkscape:cy="6.6171875"
+     inkscape:window-width="2560"
+     inkscape:window-height="1371"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     d="M 4.73,2 C 3.5123228,-0.12271923 -0.12271923,3.5123228 2,4.73 v 6.541 c -2.12271923,1.217677 1.5123228,4.852719 2.73,2.73 L 13.995086,4.7218926 11.533975,4.3356686 4.3531223,11.535499 C 4.2727185,11.46287 4.1170054,11.342221 4,11.271 V 5.437 L 7.564,9.001 H 9 V 7.565 L 5.436,4.001 h 5.834 c 0.0586,0.1264964 0.164792,0.2567325 0.275494,0.353176 L 14,4.731 C 16.121335,3.5127242 12.489053,-0.12088876 11.27,2 Z"
+     fill="#fc7f7f"
+     id="path1"
+     sodipodi:nodetypes="cccccccccccccccccc" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Layer 1" />
+</svg>

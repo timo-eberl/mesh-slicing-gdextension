@@ -1,0 +1,7 @@
+#ifndef SLICEABLE_MESH_INSTANCE_3D_REGISTER_TYPES_H
+#define SLICEABLE_MESH_INSTANCE_3D_REGISTER_TYPES_H
+
+void initialize_mesh_slicing_module();
+void uninitialize_mesh_slicing_module();
+
+#endif // SLICEABLE_MESH_INSTANCE_3D_REGISTER_TYPES_H
