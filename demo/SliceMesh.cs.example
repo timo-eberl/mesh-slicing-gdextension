@@ -1,0 +1,11 @@
+using Godot;
+using System;
+
+public partial class SliceMesh : MeshInstance3D
+{
+	public override void _Ready()
+	{
+		// Unfortunately this is currently the only way to call GDExtension code form C#
+		Call("slice_along_plane", new Plane());
+	}
+}
