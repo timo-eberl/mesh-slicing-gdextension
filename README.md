@@ -18,19 +18,15 @@ git submodule update --init --recursive
 
 ## Building
 
-> See also https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html
+> See also [GDExtension Example from Godot Docs](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/gdextension_cpp_example.html)
 
-### Requirements
-
-- Godot 4.1 executable
-- C++ Compiler
-- SCons as a build tool
-
-### Compile
+Requirements: C++ Compiler, SCons as a build tool
 
 ```sh
-cd godot-cpp
 scons
-cd ..
-scons
+```
+## Run Demo Project
+
+```sh
+godot --editor --path ./demo
 ```
