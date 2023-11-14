@@ -1,6 +1,9 @@
 #include "sliceable_mesh_instance_3d.h"
+
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/variant/basis.hpp>
 #include <godot_cpp/classes/primitive_mesh.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/classes/immediate_mesh.hpp>
@@ -56,7 +59,8 @@ double SliceableMeshInstance3D::get_speed() const {
 }
 
 void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
-	UtilityFunctions::print("Cutting along plane ", p_plane);
+	// transform the plane to object space
+	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
 
 	Ref<Mesh> mesh = this->get_mesh();
 
@@ -73,18 +77,13 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 
 		mdt->create_from_surface(array_mesh, 0);
 
-		// the * operator exists in GDScript but idk where to find it in cpp
-		// i'll not transform the mesh in the demo scene for now to mitigate this...
-		// NOTE: it's probably better to transform every vertex to world space instead to properly handle object scaling
-		// Plane plane_local = p_plane * this->get_global_transform();
-
-		Vector3 approx_center_of_cut = this->get_position() + p_plane.normal * p_plane.d;
+		Vector3 approx_center_of_cut = Vector3(0,0,0) + plane_os.normal * plane_os.d;
 
 		int side_a_ctr = 0;
 		int side_b_ctr = 0;
 		for (int i = 0; i < mdt->get_vertex_count(); ++i) {
 			Vector3 vertex = mdt->get_vertex(i);
-			if (p_plane.is_point_over(vertex)) {
+			if (plane_os.is_point_over(vertex)) {
 				// cut
 				++side_a_ctr;
 				// quick hack: collapse geometry to the approximated center of the cut
