@@ -5,7 +5,6 @@
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/basis.hpp>
 #include <godot_cpp/classes/primitive_mesh.hpp>
-#include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/classes/immediate_mesh.hpp>
 #include <godot_cpp/classes/placeholder_mesh.hpp>
 #include <godot_cpp/classes/mesh_data_tool.hpp>
@@ -59,60 +58,27 @@ double SliceableMeshInstance3D::get_speed() const {
 }
 
 void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
-	// transform the plane to object space
-	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
-
 	Ref<Mesh> mesh = this->get_mesh();
 
-	Ref<MeshDataTool> mdt { new MeshDataTool() };
+	if (auto primitive_mesh = Object::cast_to<PrimitiveMesh>(mesh.ptr())) {
+		UtilityFunctions::print("mesh is of type PrimitiveMesh. Converting to ArrayMesh.");
 
-	if (Object::cast_to<PrimitiveMesh>(mesh.ptr()) != nullptr) {
-		// PrimitiveMesh
-		auto primitive_mesh = dynamic_cast<PrimitiveMesh *>(mesh.ptr());
 		Ref<ArrayMesh> array_mesh { new ArrayMesh() };
 		array_mesh->add_surface_from_arrays(
 			Mesh::PRIMITIVE_TRIANGLES,
 			primitive_mesh->get_mesh_arrays()
 		);
 
-		mdt->create_from_surface(array_mesh, 0);
-
-		Vector3 approx_center_of_cut = Vector3(0,0,0) + plane_os.normal * plane_os.d;
-
-		int side_a_ctr = 0;
-		int side_b_ctr = 0;
-		for (int i = 0; i < mdt->get_vertex_count(); ++i) {
-			Vector3 vertex = mdt->get_vertex(i);
-			if (plane_os.is_point_over(vertex)) {
-				// cut
-				++side_a_ctr;
-				// quick hack: collapse geometry to the approximated center of the cut
-				mdt->set_vertex(i, approx_center_of_cut);
-			}
-			else {
-				++side_b_ctr;
-			}
-		}
-
-		UtilityFunctions::print("Side A contains ", side_a_ctr, " vertices");
-		UtilityFunctions::print("Side B contains ", side_b_ctr, " vertices");
-
-		Ref<ArrayMesh> new_mesh { new ArrayMesh() };
-		mdt->commit_to_surface(new_mesh);
-		this->set_mesh(new_mesh);
+		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane));
 	}
-	else if (Object::cast_to<ArrayMesh>(mesh.ptr()) != nullptr) {
-		// ArrayMesh
-		UtilityFunctions::print("mesh is of type ArrayMesh");
-		auto array_mesh = dynamic_cast<ArrayMesh *>(mesh.ptr());
+	else if (auto array_mesh = Object::cast_to<ArrayMesh>(mesh.ptr())) {
+		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane));
 	}
 	else if (Object::cast_to<ImmediateMesh>(mesh.ptr()) != nullptr) {
-		// ImmediateMesh
 		WARN_PRINT("Cannot slice ImmediateMesh.");
 		return;
 	}
 	else if (Object::cast_to<PlaceholderMesh>(mesh.ptr()) != nullptr) {
-		// PlaceholderMesh
 		WARN_PRINT("Cannot slice PlaceholderMesh.");
 		return;
 	}
@@ -120,4 +86,36 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 		WARN_PRINT("Cannot slice unknown Mesh Type.");
 		return;
 	}
+}
+
+Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane) {
+	// transform the plane to object space
+	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
+
+	Ref<MeshDataTool> mdt { new MeshDataTool() };
+	mdt->create_from_surface(p_array_mesh, 0);
+
+	Vector3 approx_center_of_cut = Vector3(0,0,0) + plane_os.normal * plane_os.d;
+
+	int side_a_ctr = 0;
+	int side_b_ctr = 0;
+	for (int i = 0; i < mdt->get_vertex_count(); ++i) {
+		Vector3 vertex = mdt->get_vertex(i);
+		if (plane_os.is_point_over(vertex)) {
+			// cut
+			++side_a_ctr;
+			// quick hack: collapse geometry to the approximated center of the cut
+			mdt->set_vertex(i, approx_center_of_cut);
+		}
+		else {
+			++side_b_ctr;
+		}
+	}
+
+	UtilityFunctions::print("Side A contains ", side_a_ctr, " vertices which will be cut");
+	UtilityFunctions::print("Side B contains ", side_b_ctr, " vertices");
+
+	Ref<ArrayMesh> new_mesh { new ArrayMesh() };
+	mdt->commit_to_surface(new_mesh);
+	return new_mesh;
 }
