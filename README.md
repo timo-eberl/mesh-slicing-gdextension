@@ -46,7 +46,7 @@ godot --path ./demo --editor
 
 ## Use it in your project
 
-Copy the contents of `demo/bin/` into your project.
+After building, copy the contents of `demo/bin/` into your project.
 
 ## Editing with Visual Studio Code
 
