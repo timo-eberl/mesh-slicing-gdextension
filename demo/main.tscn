@@ -4,9 +4,10 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q7pjd"]
 transparency = 1
-albedo_color = Color(1, 1, 1, 0.117647)
+albedo_color = Color(1, 1, 1, 0.0196078)
 
 [sub_resource type="BoxMesh" id="BoxMesh_03v4s"]
+size = Vector3(0.999, 0.999, 0.999)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gaq87"]
 albedo_color = Color(0.356863, 0.654902, 1, 1)
@@ -20,7 +21,7 @@ subdivide_depth = 5
 transparency = 1
 cull_mode = 2
 shading_mode = 0
-albedo_color = Color(1, 0.356863, 0.384314, 0.266667)
+albedo_color = Color(1, 0.356863, 0.384314, 0.0784314)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_8h7jh"]
 
@@ -63,7 +64,7 @@ skeleton = NodePath("../..")
 transform = Transform3D(0.393942, -0.373787, 0.839698, 1.49012e-08, 0.913574, 0.406673, -0.919135, -0.160205, 0.359895, 3.70021, 1.56868, 1.58591)
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.499335, -2.97627e-08, 0.866409, -0.671639, 0.631718, 0.387083, -0.547326, -0.775198, 0.315439, 0, 10, 0)
+transform = Transform3D(0.969586, -0.0707604, 0.234297, -0.189729, 0.387435, 0.902163, -0.154612, -0.919178, 0.362226, 0, 10, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_qlp8d")

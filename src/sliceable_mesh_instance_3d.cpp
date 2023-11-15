@@ -4,10 +4,12 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/basis.hpp>
+#include <godot_cpp/variant/plane.hpp>
 #include <godot_cpp/classes/primitive_mesh.hpp>
 #include <godot_cpp/classes/immediate_mesh.hpp>
 #include <godot_cpp/classes/placeholder_mesh.hpp>
 #include <godot_cpp/classes/mesh_data_tool.hpp>
+#include <godot_cpp/classes/surface_tool.hpp>
 
 using namespace godot;
 
@@ -92,30 +94,106 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	// transform the plane to object space
 	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
 
+	// create helper tools
 	Ref<MeshDataTool> mdt { new MeshDataTool() };
 	mdt->create_from_surface(p_array_mesh, 0);
+	Ref<SurfaceTool> st { new SurfaceTool() };
+	st->begin(Mesh::PRIMITIVE_TRIANGLES);
 
-	Vector3 approx_center_of_cut = Vector3(0,0,0) + plane_os.normal * plane_os.d;
+	int n_completely_removed = 0;
+	int n_two_thirds_removed = 0;
+	int n_one_third_removed = 0;
+	int n_not_removed = 0;
 
-	int side_a_ctr = 0;
-	int side_b_ctr = 0;
-	for (int i = 0; i < mdt->get_vertex_count(); ++i) {
-		Vector3 vertex = mdt->get_vertex(i);
-		if (plane_os.is_point_over(vertex)) {
-			// cut
-			++side_a_ctr;
-			// quick hack: collapse geometry to the approximated center of the cut
-			mdt->set_vertex(i, approx_center_of_cut);
+	for (size_t i = 0; i < mdt->get_face_count(); ++i) {
+		Vector3 verts [3] = {
+			mdt->get_vertex(mdt->get_face_vertex(i, 0)),
+			mdt->get_vertex(mdt->get_face_vertex(i, 1)),
+			mdt->get_vertex(mdt->get_face_vertex(i, 2)),
+		};
+		bool verts_are_above [3] = {
+			plane_os.is_point_over(verts[0]),
+			plane_os.is_point_over(verts[1]),
+			plane_os.is_point_over(verts[2]),
+		};
+		int n_of_verts_above = 0;
+		for (size_t i = 0; i < 3; i++) {
+			if (verts_are_above[i]) ++n_of_verts_above;
 		}
-		else {
-			++side_b_ctr;
+		switch (n_of_verts_above) {
+			case 3: {
+				++n_completely_removed;
+				break;
+			}
+			case 2: {
+				++n_two_thirds_removed;
+
+				Vector3 a0, a1, b, n0, n1; // above (remove), below (keep), new (add)
+
+				// ensure the order stays the same!
+				if (!verts_are_above[0]) { b = verts[0]; a0 = verts[1]; a1 = verts[2]; }
+				else if (!verts_are_above[1]) { b = verts[1]; a0 = verts[2]; a1 = verts[0]; }
+				else if (!verts_are_above[2]) { b = verts[2]; a0 = verts[0]; a1 = verts[1]; }
+
+				plane_os.intersects_ray(b, a0 - b, &n0); // find point on plane between b and a0
+				plane_os.intersects_ray(b, a1 - b, &n1); // find point on plane between b and a1
+
+				st->add_vertex(b);
+				st->add_vertex(n0);
+				st->add_vertex(n1);
+
+				break;
+			}
+			case 1: {
+				++n_one_third_removed;
+
+				Vector3 a, b0, b1, n0, n1; // above (remove), below (keep), new (add)
+
+				// ensure the order stays the same!
+				if (verts_are_above[0]) { a = verts[0]; b0 = verts[1]; b1 = verts[2]; }
+				else if (verts_are_above[1]) { a = verts[1]; b0 = verts[2]; b1 = verts[0]; }
+				else if (verts_are_above[2]) { a = verts[2]; b0 = verts[0]; b1 = verts[1]; }
+
+				plane_os.intersects_ray(a, b0 - a, &n0); // find point on plane between a and b0
+				plane_os.intersects_ray(a, b1 - a, &n1); // find point on plane between a and b1
+
+				st->add_vertex(b1);
+				st->add_vertex(n1);
+				st->add_vertex(n0);
+
+				st->add_vertex(b1);
+				st->add_vertex(n0);
+				st->add_vertex(b0);
+
+				break;
+			}
+			case 0: {
+				++n_not_removed;
+
+				for (size_t i = 0; i < 3; i++) {
+					st->add_vertex(verts[i]);
+				}
+
+				break;
+			}
 		}
 	}
+	UtilityFunctions::print("n_completely_removed: ", n_completely_removed);
+	UtilityFunctions::print("n_two_thirds_removed: ", n_two_thirds_removed);
+	UtilityFunctions::print("n_one_third_removed: ", n_one_third_removed);
+	UtilityFunctions::print("n_not_removed: ", n_not_removed);
 
-	UtilityFunctions::print("Side A contains ", side_a_ctr, " vertices which will be cut");
-	UtilityFunctions::print("Side B contains ", side_b_ctr, " vertices");
+	UtilityFunctions::print("mdt->get_vertex_count(): ", mdt->get_vertex_count());
+	
+	Ref<MeshDataTool> mdt_new { new MeshDataTool() };
+	mdt_new->create_from_surface(st->commit(), 0);
+	UtilityFunctions::print("mdt_new->get_vertex_count(): ", mdt_new->get_vertex_count());
 
-	Ref<ArrayMesh> new_mesh { new ArrayMesh() };
-	mdt->commit_to_surface(new_mesh);
-	return new_mesh;
+	st->index();
+
+	Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
+	mdt_new_optimized->create_from_surface(st->commit(), 0);
+	UtilityFunctions::print("mdt_new_optimized->get_vertex_count(): ", mdt_new_optimized->get_vertex_count());
+
+	return st->commit();
 }
