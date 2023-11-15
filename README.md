@@ -1,5 +1,18 @@
 # Mesh Slicing GDExtension
 
+This GDExtension implements Mesh Slicing. For usage see the demo project.
+
+<img src="mesh-slicing-demo.gif" alt="Mesh Slicing Animation" width="338"/>
+
+## Limitations
+
+- Slicing non-convex meshes will produce unexpected results.
+- Only one surface per Mesh is supported.
+- Supported Mesh Types are: `ArrayMesh`, `PrimitiveMesh`
+- Only Triangle Meshes are supported (`PRIMITIVE_TRIANGLES`)
+- Only UVs and Normals are transferred from the original mesh.
+- The created surface does not have UVs.
+
 ## Compatibility
 
 Godot 4.1
@@ -28,7 +41,7 @@ scons
 ## Run Demo Project
 
 ```sh
-godot --editor --path ./demo
+godot --path ./demo --editor
 ```
 
 ## Editing with Visual Studio Code
