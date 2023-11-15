@@ -14,50 +14,12 @@
 using namespace godot;
 
 void SliceableMeshInstance3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_amplitude"), &SliceableMeshInstance3D::get_amplitude);
-	ClassDB::bind_method(D_METHOD("set_amplitude", "p_amplitude"), &SliceableMeshInstance3D::set_amplitude);
-	ClassDB::add_property("SliceableMeshInstance3D", PropertyInfo(Variant::FLOAT, "amplitude"), "set_amplitude", "get_amplitude");
-
-	ClassDB::bind_method(D_METHOD("get_speed"), &SliceableMeshInstance3D::get_speed);
-	ClassDB::bind_method(D_METHOD("set_speed", "p_speed"), &SliceableMeshInstance3D::set_speed);
-	ClassDB::add_property("SliceableMeshInstance3D", PropertyInfo(Variant::FLOAT, "speed", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_speed", "get_speed");
-
 	ClassDB::bind_method(D_METHOD("slice_along_plane"), &SliceableMeshInstance3D::slice_along_plane);
 }
 
-SliceableMeshInstance3D::SliceableMeshInstance3D() : time_passed(0.0), amplitude(10.0), speed(1.0), m_cutting_plane() { }
+SliceableMeshInstance3D::SliceableMeshInstance3D() { }
 
-SliceableMeshInstance3D::~SliceableMeshInstance3D() {
-	// Add your cleanup here.
-}
-
-void SliceableMeshInstance3D::_process(double delta) {
-	time_passed += speed * delta;
-
-	Vector3 new_position = Vector3(
-		amplitude + (amplitude * sin(time_passed * 2.0)),
-		amplitude + (amplitude * cos(time_passed * 1.5)),
-		0.0
-	);
-
-	// set_position(new_position);
-}
-
-void SliceableMeshInstance3D::set_amplitude(const double p_amplitude) {
-	amplitude = p_amplitude;
-}
-
-double SliceableMeshInstance3D::get_amplitude() const {
-	return amplitude;
-}
-
-void SliceableMeshInstance3D::set_speed(const double p_speed) {
-	speed = p_speed;
-}
-
-double SliceableMeshInstance3D::get_speed() const {
-	return speed;
-}
+SliceableMeshInstance3D::~SliceableMeshInstance3D() { }
 
 void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 	Ref<Mesh> mesh = this->get_mesh();
@@ -90,6 +52,15 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 	}
 }
 
+void add_lid(
+	const Ref<SurfaceTool> p_st, const Vector3 &p_lid_normal,
+	const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2
+) {
+	p_st->set_normal(p_lid_normal); p_st->add_vertex(p_v0);
+	p_st->set_normal(p_lid_normal); p_st->add_vertex(p_v1);
+	p_st->set_normal(p_lid_normal); p_st->add_vertex(p_v2);
+}
+
 Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane) {
 	// transform the plane to object space
 	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
@@ -100,11 +71,6 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	Ref<SurfaceTool> st { new SurfaceTool() };
 	st->begin(Mesh::PRIMITIVE_TRIANGLES);
 
-	int n_completely_removed = 0;
-	int n_two_thirds_removed = 0;
-	int n_one_third_removed = 0;
-	int n_not_removed = 0;
-
 	Vector3 lid_normal = plane_os.normal;
 	// this point is used for adding the "lid". Will be set to the first created vertex.
 	// alternatively, if it needs to be in the center of the cut, an average of all created vertices could be used
@@ -112,34 +78,32 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	// keep track if pos_on_cut has been set. the first created vertex will set it.
 	bool pos_on_cut_defined = false;
 
-	for (size_t i = 0; i < mdt->get_face_count(); ++i) {
+	for (size_t face_idx = 0; face_idx < mdt->get_face_count(); ++face_idx) {
 		Vector3 verts [3] = {
-			mdt->get_vertex(mdt->get_face_vertex(i, 0)),
-			mdt->get_vertex(mdt->get_face_vertex(i, 1)),
-			mdt->get_vertex(mdt->get_face_vertex(i, 2)),
+			mdt->get_vertex(mdt->get_face_vertex(face_idx, 0)),
+			mdt->get_vertex(mdt->get_face_vertex(face_idx, 1)),
+			mdt->get_vertex(mdt->get_face_vertex(face_idx, 2)),
 		};
 		bool verts_are_above [3] = {
 			plane_os.is_point_over(verts[0]),
 			plane_os.is_point_over(verts[1]),
 			plane_os.is_point_over(verts[2]),
 		};
-		Vector3 face_normal = mdt->get_face_normal(i);
-		int n_of_verts_above = 0;
+		Vector3 face_normal = mdt->get_face_normal(face_idx);
+		int32_t n_of_verts_above = 0;
 		for (size_t i = 0; i < 3; i++) {
 			if (verts_are_above[i]) ++n_of_verts_above;
 		}
 
 		switch (n_of_verts_above) {
 			case 3: { // all vertices are above -> face is completely removed
-				++n_completely_removed;
 				break;
 			}
 			case 2: { // two vertices are above and one below -> face is removed and one new face is created
-				++n_two_thirds_removed;
 
 				Vector3 a0, a1, b, n0, n1; // above (remove), below (keep), new (add)
 
-				// ensure the order stays the same!
+				// ensure the winding order stays the same!
 				if (!verts_are_above[0]) { b = verts[0]; a0 = verts[1]; a1 = verts[2]; }
 				else if (!verts_are_above[1]) { b = verts[1]; a0 = verts[2]; a1 = verts[0]; }
 				else if (!verts_are_above[2]) { b = verts[2]; a0 = verts[0]; a1 = verts[1]; }
@@ -152,22 +116,17 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				st->set_normal(face_normal); st->add_vertex(n0);
 				st->set_normal(face_normal); st->add_vertex(n1);
 
-				if (pos_on_cut_defined) {
-					// add "lid"
-					st->set_normal(lid_normal); st->add_vertex(n0);
-					st->set_normal(lid_normal); st->add_vertex(pos_on_cut);
-					st->set_normal(lid_normal); st->add_vertex(n1);
-				}
+				// add lid
+				if (pos_on_cut_defined) { add_lid(st, lid_normal, n0, pos_on_cut, n1); }
 				else { pos_on_cut = n0; pos_on_cut_defined = true; }
 
 				break;
 			}
 			case 1: { // one vertex are above and two below -> face is removed and two new faces are created
-				++n_one_third_removed;
 
 				Vector3 a, b0, b1, n0, n1; // above (remove), below (keep), new (add)
 
-				// ensure the order stays the same!
+				// ensure the winding order stays the same!
 				if (verts_are_above[0]) { a = verts[0]; b0 = verts[1]; b1 = verts[2]; }
 				else if (verts_are_above[1]) { a = verts[1]; b0 = verts[2]; b1 = verts[0]; }
 				else if (verts_are_above[2]) { a = verts[2]; b0 = verts[0]; b1 = verts[1]; }
@@ -185,23 +144,16 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				st->set_normal(face_normal); st->add_vertex(n0);
 				st->set_normal(face_normal); st->add_vertex(b0);
 
-				if (pos_on_cut_defined) {
-					// // add "lid"
-					st->set_normal(lid_normal); st->add_vertex(n1);
-					st->set_normal(lid_normal); st->add_vertex(pos_on_cut);
-					st->set_normal(lid_normal); st->add_vertex(n0);
-				}
+				// add lid
+				if (pos_on_cut_defined) { add_lid(st, lid_normal, n1, pos_on_cut, n0); }
 				else { pos_on_cut = n0; pos_on_cut_defined = true; }
 
 				break;
 			}
 			case 0: { // all vertices are below -> face is kept
-				++n_not_removed;
-
 				for (size_t i = 0; i < 3; i++) {
 					st->set_normal(face_normal); st->add_vertex(verts[i]);
 				}
-
 				break;
 			}
 		}
@@ -214,6 +166,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	// UtilityFunctions::print("mdt_new->get_vertex_count(): ", mdt_new->get_vertex_count());
 
 	// shrinks the vertex array by creating an index array
+	// has a very high cost for complex meshes
 	st->index();
 
 	// Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
