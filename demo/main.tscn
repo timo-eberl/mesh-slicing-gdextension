@@ -1,6 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://bx1vgheicnank"]
+[gd_scene load_steps=15 format=3 uid="uid://bx1vgheicnank"]
 
 [ext_resource type="Script" path="res://slice_mesh.gd" id="1_k8yw8"]
+[ext_resource type="Script" path="res://main.gd" id="1_q6orp"]
+[ext_resource type="Script" path="res://rotate.gd" id="2_orfvx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q7pjd"]
 transparency = 1
@@ -13,14 +15,13 @@ size = Vector3(0.99, 0.99, 0.99)
 albedo_color = Color(0.356863, 0.654902, 1, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4bnoe"]
-subdivide_width = 5
-subdivide_height = 5
-subdivide_depth = 5
 
 [sub_resource type="SphereMesh" id="SphereMesh_2k47p"]
-radius = 0.49
+radius = 0.495
 
 [sub_resource type="SphereMesh" id="SphereMesh_wsgr3"]
+radial_segments = 32
+rings = 16
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x6hi3"]
 transparency = 1
@@ -43,18 +44,19 @@ ambient_light_source = 2
 ambient_light_color = Color(0.301961, 0.301961, 0.301961, 1)
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_q6orp")
 
-[node name="Cube" type="Node3D" parent="."]
-transform = Transform3D(0.905857, 0, 0.423583, 0, 1, 0, -0.423583, 0, 0.905857, -1.17417, -1.18236, -0.393)
+[node name="Rectangle" type="Node3D" parent="."]
+transform = Transform3D(0.872945, 0.241958, 0.423583, -0.267104, 0.963668, -7.45058e-09, -0.408193, -0.113141, 0.905857, -0.887555, -1.18236, 0.0685843)
 
-[node name="UnslicedMesh" type="MeshInstance3D" parent="Cube"]
-transform = Transform3D(0.999, 0, 0, 0, 0.982534, -0.542433, 0, 0.18063, 2.95055, 0.251433, 0.436935, -0.256414)
+[node name="UnslicedMesh" type="MeshInstance3D" parent="Rectangle"]
+transform = Transform3D(1, 0, 0, 0, 1.37692, -0.723245, 0, 0.253135, 3.93407, 0.251433, 0.436935, -0.256414)
 material_override = SubResource("StandardMaterial3D_q7pjd")
 mesh = SubResource("BoxMesh_03v4s")
 skeleton = NodePath("../..")
 
-[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Cube" node_paths=PackedStringArray("plane_node")]
-transform = Transform3D(1, 0, 0, 0, 0.983518, -0.542433, 0, 0.180811, 2.95055, 0.251684, 0.437373, -0.256671)
+[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Rectangle" node_paths=PackedStringArray("plane_node")]
+transform = Transform3D(1, 0, 0, 0, 1.37692, -0.723245, 0, 0.253135, 3.93407, 0.251684, 0.437373, -0.256671)
 material_override = SubResource("StandardMaterial3D_gaq87")
 mesh = SubResource("BoxMesh_4bnoe")
 skeleton = NodePath("../..")
@@ -62,16 +64,16 @@ script = ExtResource("1_k8yw8")
 plane_node = NodePath("../../CuttingPlane")
 
 [node name="Sphere" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.705179, 0.709029, 0, -0.709029, 0.705179, 0.678, 1.293, -0.323)
+transform = Transform3D(1, 0, 0, 0, 0.800872, 1.15701, 0, -0.805244, 1.15072, 0.527702, 1.293, 0.0589788)
 
 [node name="UnslicedMesh" type="MeshInstance3D" parent="Sphere"]
-transform = Transform3D(0.619433, 0, 1.17684, 0.141715, 0.982534, -0.168168, -0.770857, 0.18063, 0.91475, 0, 0, 0)
+transform = Transform3D(0.620053, 4.47035e-08, 0.78456, 0.141857, 0.983518, -0.112112, -0.771629, 0.180811, 0.609833, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_q7pjd")
 mesh = SubResource("SphereMesh_2k47p")
 skeleton = NodePath("../..")
 
 [node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Sphere" node_paths=PackedStringArray("plane_node")]
-transform = Transform3D(0.620053, -1.49012e-08, 1.17684, 0.141857, 0.983518, -0.168169, -0.771629, 0.180811, 0.91475, 0, 0, 0)
+transform = Transform3D(0.620053, 5.21541e-08, 0.78456, 0.141857, 0.983518, -0.112112, -0.771629, 0.180811, 0.609833, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_gaq87")
 mesh = SubResource("SphereMesh_wsgr3")
 skeleton = NodePath("../..")
@@ -79,7 +81,8 @@ script = ExtResource("1_k8yw8")
 plane_node = NodePath("../../CuttingPlane")
 
 [node name="CuttingPlane" type="Node3D" parent="."]
-transform = Transform3D(-0.934176, 0.353692, -0.0470786, 0.316676, 0.882644, 0.347356, 0.164411, 0.309584, -0.936552, 0.0680645, 0.0387865, -0.397286)
+transform = Transform3D(-0.934176, 0.353692, -0.0470786, 0.316676, 0.882644, 0.347356, 0.164411, 0.309584, -0.936552, -0.170028, -0.271278, -0.500317)
+script = ExtResource("2_orfvx")
 
 [node name="PlaneMesh" type="MeshInstance3D" parent="CuttingPlane"]
 transform = Transform3D(2, 0, 5.96046e-08, 0, -8.9407e-08, -2, 5.96046e-08, 2, -8.9407e-08, 0, 0, -0.001)
