@@ -37,8 +37,7 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 	Ref<Mesh> mesh = this->get_mesh();
 
 	if (auto primitive_mesh = Object::cast_to<PrimitiveMesh>(mesh.ptr())) {
-		UtilityFunctions::print("mesh is of type PrimitiveMesh. Converting to ArrayMesh.");
-
+		// mesh is of type PrimitiveMesh -> convert to ArrayMesh
 		Ref<ArrayMesh> array_mesh { new ArrayMesh() };
 		array_mesh->add_surface_from_arrays(
 			Mesh::PRIMITIVE_TRIANGLES,
@@ -76,6 +75,14 @@ void add_lid(
 Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane) {
 	// transform the plane to object space
 	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
+
+	Ref<ArrayMesh> new_mesh { new ArrayMesh };
+
+	switch (p_array_mesh->get_surface_count()) {
+		case 0: WARN_PRINT("Mesh has no surface."); return new_mesh;
+		case 1: break; // all good
+		default: WARN_PRINT("Mesh has multiple surfaces. Only slicing first surface."); break;
+	}
 
 	// create helper tools
 	Ref<MeshDataTool> mdt { new MeshDataTool() };
@@ -196,24 +203,15 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 		}
 	}
 
-	// UtilityFunctions::print("mdt->get_vertex_count(): ", mdt->get_vertex_count());
-	
-	// Ref<MeshDataTool> mdt_new { new MeshDataTool() };
-	// mdt_new->create_from_surface(st->commit(), 0);
-	// UtilityFunctions::print("mdt_new->get_vertex_count(): ", mdt_new->get_vertex_count());
-
-	// shrinks the vertex array by creating an index array
-	// has a very high cost for complex meshes
+	// shrinks the vertex array by creating an index array (triangle array)
+	// has a high performance penalty for big meshes
 	st->index();
 	st_lid->index();
 
-	// Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
-	// mdt_new_optimized->create_from_surface(st->commit(), 0);
-	// UtilityFunctions::print("mdt_new_optimized->get_vertex_count(): ", mdt_new_optimized->get_vertex_count());
-
-	Ref<ArrayMesh> new_mesh = st->commit(new_mesh);
-	st_lid->commit(new_mesh); // commit lid as a new surface
+	st->commit(new_mesh); // commit sliced surface as a new surface
 	int32_t surface_count = new_mesh->get_surface_count();
-	if (surface_count > 0) new_mesh->surface_set_material(surface_count - 1, m_inner_material);
+	st_lid->commit(new_mesh); // commit lid as a new surface
+	if (new_mesh->get_surface_count() > surface_count) new_mesh->surface_set_material(surface_count, m_inner_material);
+
 	return new_mesh;
 }
