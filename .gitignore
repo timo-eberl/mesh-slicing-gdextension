@@ -13,5 +13,3 @@
 
 # Editors
 .vscode/
-# Do not ignore cpp config
-!*/.vscode/c_cpp_properties.json

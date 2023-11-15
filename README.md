@@ -30,3 +30,20 @@ scons
 ```sh
 godot --editor --path ./demo
 ```
+
+## Editing with Visual Studio Code
+
+Add the `includePath` from the following code snippet to your `.vscode/c_cpp_properties.json`
+
+```json
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/godot-cpp/gen/include",
+                "${workspaceFolder}/src"
+            ],
+// ...
+```
