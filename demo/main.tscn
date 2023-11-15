@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bx1vgheicnank"]
+[gd_scene load_steps=13 format=3 uid="uid://bx1vgheicnank"]
 
 [ext_resource type="Script" path="res://slice_mesh.gd" id="1_k8yw8"]
 
@@ -7,7 +7,7 @@ transparency = 1
 albedo_color = Color(1, 1, 1, 0.0196078)
 
 [sub_resource type="BoxMesh" id="BoxMesh_03v4s"]
-size = Vector3(0.999, 0.999, 0.999)
+size = Vector3(0.99, 0.99, 0.99)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gaq87"]
 albedo_color = Color(0.356863, 0.654902, 1, 1)
@@ -16,6 +16,11 @@ albedo_color = Color(0.356863, 0.654902, 1, 1)
 subdivide_width = 5
 subdivide_height = 5
 subdivide_depth = 5
+
+[sub_resource type="SphereMesh" id="SphereMesh_2k47p"]
+radius = 0.49
+
+[sub_resource type="SphereMesh" id="SphereMesh_wsgr3"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x6hi3"]
 transparency = 1
@@ -39,17 +44,39 @@ ambient_light_color = Color(0.301961, 0.301961, 0.301961, 1)
 
 [node name="Main" type="Node3D"]
 
-[node name="UnslicedMesh" type="MeshInstance3D" parent="."]
+[node name="Cube" type="Node3D" parent="."]
+transform = Transform3D(0.905857, 0, 0.423583, 0, 1, 0, -0.423583, 0, 0.905857, -1.17417, -1.18236, -0.393)
+
+[node name="UnslicedMesh" type="MeshInstance3D" parent="Cube"]
 transform = Transform3D(0.999, 0, 0, 0, 0.982534, -0.542433, 0, 0.18063, 2.95055, 0.251433, 0.436935, -0.256414)
 material_override = SubResource("StandardMaterial3D_q7pjd")
 mesh = SubResource("BoxMesh_03v4s")
+skeleton = NodePath("../..")
 
-[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="." node_paths=PackedStringArray("plane_node")]
+[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Cube" node_paths=PackedStringArray("plane_node")]
 transform = Transform3D(1, 0, 0, 0, 0.983518, -0.542433, 0, 0.180811, 2.95055, 0.251684, 0.437373, -0.256671)
 material_override = SubResource("StandardMaterial3D_gaq87")
 mesh = SubResource("BoxMesh_4bnoe")
+skeleton = NodePath("../..")
 script = ExtResource("1_k8yw8")
-plane_node = NodePath("../CuttingPlane")
+plane_node = NodePath("../../CuttingPlane")
+
+[node name="Sphere" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.705179, 0.709029, 0, -0.709029, 0.705179, 0, 0, 0)
+
+[node name="UnslicedMesh" type="MeshInstance3D" parent="Sphere"]
+transform = Transform3D(0.619433, 0, 1.17684, 0.141715, 0.982534, -0.168168, -0.770857, 0.18063, 0.91475, 0.677954, 1.29294, -0.323088)
+material_override = SubResource("StandardMaterial3D_q7pjd")
+mesh = SubResource("SphereMesh_2k47p")
+skeleton = NodePath("../..")
+
+[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Sphere" node_paths=PackedStringArray("plane_node")]
+transform = Transform3D(0.620053, -1.49012e-08, 1.17684, 0.141857, 0.983518, -0.168169, -0.771629, 0.180811, 0.91475, 0.678477, 1.29425, -0.323533)
+material_override = SubResource("StandardMaterial3D_gaq87")
+mesh = SubResource("SphereMesh_wsgr3")
+skeleton = NodePath("../..")
+script = ExtResource("1_k8yw8")
+plane_node = NodePath("../../CuttingPlane")
 
 [node name="CuttingPlane" type="Node3D" parent="."]
 transform = Transform3D(0.999692, -0.0240482, -0.00608066, 0.0247139, 0.944643, 0.327168, -0.00212353, -0.327218, 0.944947, -0.243361, -0.197637, -0.552672)
