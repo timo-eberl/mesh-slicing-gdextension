@@ -79,34 +79,22 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	bool pos_on_cut_defined = false;
 
 	for (size_t face_idx = 0; face_idx < mdt->get_face_count(); ++face_idx) {
-		int32_t verts_indices [3] = {
-			mdt->get_face_vertex(face_idx, 0),
-			mdt->get_face_vertex(face_idx, 1),
-			mdt->get_face_vertex(face_idx, 2),
-		};
-		Vector3 verts [3] = {
-			mdt->get_vertex(verts_indices[0]),
-			mdt->get_vertex(verts_indices[1]),
-			mdt->get_vertex(verts_indices[2]),
-		};
-		bool verts_are_above [3] = {
-			plane_os.is_point_over(verts[0]),
-			plane_os.is_point_over(verts[1]),
-			plane_os.is_point_over(verts[2]),
-		};
-		Vector3 verts_normals [3] = {
-			mdt->get_vertex_normal(verts_indices[0]),
-			mdt->get_vertex_normal(verts_indices[1]),
-			mdt->get_vertex_normal(verts_indices[2]),
-		};
-		Vector2 verts_uvs [3] = {
-			mdt->get_vertex_uv(verts_indices[0]),
-			mdt->get_vertex_uv(verts_indices[1]),
-			mdt->get_vertex_uv(verts_indices[2]),
-		};
-		Vector3 face_normal = mdt->get_face_normal(face_idx);
+		// vertex data
+		int32_t verts_indices [3];
+		Vector3 verts [3];
+		bool verts_are_above [3];
+		Vector3 verts_normals [3];
+		Vector2 verts_uvs [3];
+
 		int32_t n_of_verts_above = 0;
-		for (size_t i = 0; i < 3; i++) {
+
+		for (size_t i = 0; i < 3; ++i) {
+			verts_indices[i] = mdt->get_face_vertex(face_idx, i);
+			verts[i] = mdt->get_vertex(verts_indices[i]);
+			verts_are_above[i] = plane_os.is_point_over(verts[i]);
+			verts_normals[i] = mdt->get_vertex_normal(verts_indices[i]);
+			verts_uvs[i] = mdt->get_vertex_uv(verts_indices[i]);
+
 			if (verts_are_above[i]) ++n_of_verts_above;
 		}
 
@@ -114,11 +102,9 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 			case 3: { // all vertices are above -> face is completely removed
 				break;
 			}
-			case 2: { // two vertices are above and one below -> face is removed and one new face is created
+			case 2: { // two vertices are above and one below -> remove face, create one new face, create lid
 
-				int32_t a0, a1, b; // above (remove), below (keep)
-				Vector3 n0, n1; // new verts
-
+				int32_t a0, a1, b; Vector3 n0, n1; // above (remove), below (keep), new (add)
 				// ensure the winding order stays the same!
 				if (!verts_are_above[0]) { b = 0; a0 = 1; a1 = 2; }
 				else if (!verts_are_above[1]) { b = 1; a0 = 2; a1 = 0; }
@@ -145,15 +131,13 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 
 				// add lid
 				if (pos_on_cut_defined) { add_lid(st, lid_normal, n0, pos_on_cut, n1); }
-				else { pos_on_cut = n0; pos_on_cut_defined = true; }
+				else { pos_on_cut = n0; pos_on_cut_defined = true; } // no need to add a lid
 
 				break;
 			}
-			case 1: { // one vertex are above and two below -> face is removed and two new faces are created
+			case 1: { // one vertex are above and two below -> remove face, create two new faces, create lid
 
-				int32_t a, b0, b1; // above (remove), below (keep)
-				Vector3 n0, n1; // new verts
-
+				int32_t a, b0, b1; Vector3 n0, n1; // above (remove), below (keep), new (add)
 				// ensure the winding order stays the same!
 				if (verts_are_above[0]) { a = 0; b0 = 1; b1 = 2; }
 				else if (verts_are_above[1]) { a = 1; b0 = 2; b1 = 0; }
@@ -185,7 +169,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 
 				// add lid
 				if (pos_on_cut_defined) { add_lid(st, lid_normal, n1, pos_on_cut, n0); }
-				else { pos_on_cut = n0; pos_on_cut_defined = true; }
+				else { pos_on_cut = n0; pos_on_cut_defined = true; } // no need to add a lid
 
 				break;
 			}
