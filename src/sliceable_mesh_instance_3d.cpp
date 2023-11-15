@@ -116,10 +116,12 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 			plane_os.is_point_over(verts[1]),
 			plane_os.is_point_over(verts[2]),
 		};
+		Vector3 face_normal = mdt->get_face_normal(i);
 		int n_of_verts_above = 0;
 		for (size_t i = 0; i < 3; i++) {
 			if (verts_are_above[i]) ++n_of_verts_above;
 		}
+
 		switch (n_of_verts_above) {
 			case 3: { // all vertices are above -> face is completely removed
 				++n_completely_removed;
@@ -138,9 +140,9 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				plane_os.intersects_ray(b, a0 - b, &n0); // find point on plane between b and a0
 				plane_os.intersects_ray(b, a1 - b, &n1); // find point on plane between b and a1
 
-				st->add_vertex(b);
-				st->add_vertex(n0);
-				st->add_vertex(n1);
+				st->set_normal(face_normal); st->add_vertex(b);
+				st->set_normal(face_normal); st->add_vertex(n0);
+				st->set_normal(face_normal); st->add_vertex(n1);
 
 				break;
 			}
@@ -157,13 +159,13 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				plane_os.intersects_ray(a, b0 - a, &n0); // find point on plane between a and b0
 				plane_os.intersects_ray(a, b1 - a, &n1); // find point on plane between a and b1
 
-				st->add_vertex(b1);
-				st->add_vertex(n1);
-				st->add_vertex(n0);
+				st->set_normal(face_normal); st->add_vertex(b1);
+				st->set_normal(face_normal); st->add_vertex(n1);
+				st->set_normal(face_normal); st->add_vertex(n0);
 
-				st->add_vertex(b1);
-				st->add_vertex(n0);
-				st->add_vertex(b0);
+				st->set_normal(face_normal); st->add_vertex(b1);
+				st->set_normal(face_normal); st->add_vertex(n0);
+				st->set_normal(face_normal); st->add_vertex(b0);
 
 				break;
 			}
@@ -171,7 +173,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				++n_not_removed;
 
 				for (size_t i = 0; i < 3; i++) {
-					st->add_vertex(verts[i]);
+					st->set_normal(face_normal); st->add_vertex(verts[i]);
 				}
 
 				break;
