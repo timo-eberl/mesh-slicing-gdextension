@@ -105,6 +105,13 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	int n_one_third_removed = 0;
 	int n_not_removed = 0;
 
+	Vector3 lid_normal = plane_os.normal;
+	// this point is used for adding the "lid". Will be set to the first created vertex.
+	// alternatively, if it needs to be in the center of the cut, an average of all created vertices could be used
+	Vector3 pos_on_cut;
+	// keep track if pos_on_cut has been set. the first created vertex will set it.
+	bool pos_on_cut_defined = false;
+
 	for (size_t i = 0; i < mdt->get_face_count(); ++i) {
 		Vector3 verts [3] = {
 			mdt->get_vertex(mdt->get_face_vertex(i, 0)),
@@ -140,9 +147,18 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				plane_os.intersects_ray(b, a0 - b, &n0); // find point on plane between b and a0
 				plane_os.intersects_ray(b, a1 - b, &n1); // find point on plane between b and a1
 
+				// previous order was b -> a0 -> a1, so new order is b -> n0 -> n1
 				st->set_normal(face_normal); st->add_vertex(b);
 				st->set_normal(face_normal); st->add_vertex(n0);
 				st->set_normal(face_normal); st->add_vertex(n1);
+
+				if (pos_on_cut_defined) {
+					// add "lid"
+					st->set_normal(lid_normal); st->add_vertex(n0);
+					st->set_normal(lid_normal); st->add_vertex(pos_on_cut);
+					st->set_normal(lid_normal); st->add_vertex(n1);
+				}
+				else { pos_on_cut = n0; pos_on_cut_defined = true; }
 
 				break;
 			}
@@ -159,13 +175,23 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				plane_os.intersects_ray(a, b0 - a, &n0); // find point on plane between a and b0
 				plane_os.intersects_ray(a, b1 - a, &n1); // find point on plane between a and b1
 
+				// previous order was b1 -> a -> b0, so the first triangle is b1 -> n1 -> n0
 				st->set_normal(face_normal); st->add_vertex(b1);
 				st->set_normal(face_normal); st->add_vertex(n1);
 				st->set_normal(face_normal); st->add_vertex(n0);
 
+				// the second triangle is b1 -> n0 -> b0
 				st->set_normal(face_normal); st->add_vertex(b1);
 				st->set_normal(face_normal); st->add_vertex(n0);
 				st->set_normal(face_normal); st->add_vertex(b0);
+
+				if (pos_on_cut_defined) {
+					// // add "lid"
+					st->set_normal(lid_normal); st->add_vertex(n1);
+					st->set_normal(lid_normal); st->add_vertex(pos_on_cut);
+					st->set_normal(lid_normal); st->add_vertex(n0);
+				}
+				else { pos_on_cut = n0; pos_on_cut_defined = true; }
 
 				break;
 			}

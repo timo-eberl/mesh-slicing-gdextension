@@ -62,16 +62,16 @@ script = ExtResource("1_k8yw8")
 plane_node = NodePath("../../CuttingPlane")
 
 [node name="Sphere" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.705179, 0.709029, 0, -0.709029, 0.705179, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.705179, 0.709029, 0, -0.709029, 0.705179, 0.678, 1.293, -0.323)
 
 [node name="UnslicedMesh" type="MeshInstance3D" parent="Sphere"]
-transform = Transform3D(0.619433, 0, 1.17684, 0.141715, 0.982534, -0.168168, -0.770857, 0.18063, 0.91475, 0.677954, 1.29294, -0.323088)
+transform = Transform3D(0.619433, 0, 1.17684, 0.141715, 0.982534, -0.168168, -0.770857, 0.18063, 0.91475, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_q7pjd")
 mesh = SubResource("SphereMesh_2k47p")
 skeleton = NodePath("../..")
 
 [node name="SliceableMesh" type="SliceableMeshInstance3D" parent="Sphere" node_paths=PackedStringArray("plane_node")]
-transform = Transform3D(0.620053, -1.49012e-08, 1.17684, 0.141857, 0.983518, -0.168169, -0.771629, 0.180811, 0.91475, 0.678477, 1.29425, -0.323533)
+transform = Transform3D(0.620053, -1.49012e-08, 1.17684, 0.141857, 0.983518, -0.168169, -0.771629, 0.180811, 0.91475, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_gaq87")
 mesh = SubResource("SphereMesh_wsgr3")
 skeleton = NodePath("../..")
@@ -79,10 +79,10 @@ script = ExtResource("1_k8yw8")
 plane_node = NodePath("../../CuttingPlane")
 
 [node name="CuttingPlane" type="Node3D" parent="."]
-transform = Transform3D(0.999692, -0.0240482, -0.00608066, 0.0247139, 0.944643, 0.327168, -0.00212353, -0.327218, 0.944947, -0.243361, -0.197637, -0.552672)
+transform = Transform3D(-0.934176, 0.353692, -0.0470786, 0.316676, 0.882644, 0.347356, 0.164411, 0.309584, -0.936552, 0.0680645, 0.0387865, -0.397286)
 
 [node name="PlaneMesh" type="MeshInstance3D" parent="CuttingPlane"]
-transform = Transform3D(2, 0, 0, 0, -8.74228e-08, -2, 0, 2, -8.74228e-08, 0, 0, 0)
+transform = Transform3D(2, 0, 5.96046e-08, 0, -8.9407e-08, -2, 5.96046e-08, 2, -8.9407e-08, 0, 0, -0.001)
 material_override = SubResource("StandardMaterial3D_x6hi3")
 mesh = SubResource("PlaneMesh_8h7jh")
 skeleton = NodePath("../..")
@@ -91,9 +91,7 @@ skeleton = NodePath("../..")
 transform = Transform3D(0.393942, -0.373787, 0.839698, 1.49012e-08, 0.913574, 0.406673, -0.919135, -0.160205, 0.359895, 3.70021, 1.56868, 1.58591)
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.969586, -0.0707604, 0.234297, -0.189729, 0.387435, 0.902163, -0.154612, -0.919178, 0.362226, 0, 10, 0)
+transform = Transform3D(0.987584, -0.146208, 0.0574618, 0.0278141, 0.522739, 0.852039, -0.154612, -0.839862, 0.520315, 0, 10, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_qlp8d")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
