@@ -2,4 +2,6 @@
 
 [resource]
 transparency = 1
-albedo_color = Color(1, 1, 1, 0.0196078)
+albedo_color = Color(1, 1, 1, 0.0392157)
+emission_enabled = true
+disable_receive_shadows = true

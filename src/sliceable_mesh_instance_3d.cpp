@@ -14,12 +14,24 @@
 using namespace godot;
 
 void SliceableMeshInstance3D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("slice_along_plane"), &SliceableMeshInstance3D::slice_along_plane);
+	ClassDB::bind_method(D_METHOD("get_inner_material"), &SliceableMeshInstance3D::get_inner_material);
+	ClassDB::bind_method(D_METHOD("set_inner_material", "p_inner_material"), &SliceableMeshInstance3D::set_inner_material);
+	ClassDB::add_property("SliceableMeshInstance3D", PropertyInfo(Variant::OBJECT, "inner_material", PROPERTY_HINT_RESOURCE_TYPE, "BaseMaterial3D,ShaderMaterial"), "set_inner_material", "get_inner_material");
+
+	ClassDB::bind_method(D_METHOD("slice_along_plane", "p_plane"), &SliceableMeshInstance3D::slice_along_plane);
 }
 
-SliceableMeshInstance3D::SliceableMeshInstance3D() { }
+SliceableMeshInstance3D::SliceableMeshInstance3D() : m_inner_material() { }
 
 SliceableMeshInstance3D::~SliceableMeshInstance3D() { }
+
+void SliceableMeshInstance3D::set_inner_material(const Ref<Material> p_inner_material) {
+	m_inner_material = p_inner_material;
+}
+
+Ref<Material> SliceableMeshInstance3D::get_inner_material() const {
+	return m_inner_material;
+}
 
 void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 	Ref<Mesh> mesh = this->get_mesh();
@@ -70,6 +82,8 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	mdt->create_from_surface(p_array_mesh, 0);
 	Ref<SurfaceTool> st { new SurfaceTool() };
 	st->begin(Mesh::PRIMITIVE_TRIANGLES);
+	Ref<SurfaceTool> st_lid { new SurfaceTool() };
+	st_lid->begin(Mesh::PRIMITIVE_TRIANGLES);
 
 	Vector3 lid_normal = plane_os.normal;
 	// this point is used for adding the "lid". Will be set to the first created vertex.
@@ -130,7 +144,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				st->set_normal(n1_normal); st->set_uv(n1_uv); st->add_vertex(n1);
 
 				// add lid
-				if (pos_on_cut_defined) { add_lid(st, lid_normal, n0, pos_on_cut, n1); }
+				if (pos_on_cut_defined) { add_lid(st_lid, lid_normal, n0, pos_on_cut, n1); }
 				else { pos_on_cut = n0; pos_on_cut_defined = true; } // no need to add a lid
 
 				break;
@@ -168,7 +182,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 				st->set_normal(verts_normals[b0]); st->set_uv(verts_uvs[b0]); st->add_vertex(verts[b0]);
 
 				// add lid
-				if (pos_on_cut_defined) { add_lid(st, lid_normal, n1, pos_on_cut, n0); }
+				if (pos_on_cut_defined) { add_lid(st_lid, lid_normal, n1, pos_on_cut, n0); }
 				else { pos_on_cut = n0; pos_on_cut_defined = true; } // no need to add a lid
 
 				break;
@@ -191,10 +205,15 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	// shrinks the vertex array by creating an index array
 	// has a very high cost for complex meshes
 	st->index();
+	st_lid->index();
 
 	// Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
 	// mdt_new_optimized->create_from_surface(st->commit(), 0);
 	// UtilityFunctions::print("mdt_new_optimized->get_vertex_count(): ", mdt_new_optimized->get_vertex_count());
 
-	return st->commit();
+	Ref<ArrayMesh> new_mesh = st->commit(new_mesh);
+	st_lid->commit(new_mesh); // commit lid as a new surface
+	int32_t surface_count = new_mesh->get_surface_count();
+	if (surface_count > 0) new_mesh->surface_set_material(surface_count - 1, m_inner_material);
+	return new_mesh;
 }

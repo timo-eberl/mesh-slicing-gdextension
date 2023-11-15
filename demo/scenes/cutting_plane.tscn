@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://migofo6ctkfb"]
+
+[ext_resource type="Script" path="res://src/rotate.gd" id="1_ivda2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x6hi3"]
+cull_mode = 2
+albedo_color = Color(0.847059, 0.294118, 0.341176, 0.176471)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_8h7jh"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dj4bw"]
+
+[node name="CuttingPlane" type="Node3D"]
+script = ExtResource("1_ivda2")
+
+[node name="PlaneMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(2, 0, 5.96046e-08, 0, -8.9407e-08, -2, 5.96046e-08, 2, -8.9407e-08, 0, 0, -0.001)
+visible = false
+material_override = SubResource("StandardMaterial3D_x6hi3")
+mesh = SubResource("PlaneMesh_8h7jh")
+skeleton = NodePath("../..")
+
+[node name="Cylinder" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.05, 0, 0, 0, 2, 0, 0, 0, 0.05, -2, 0, 0)
+material_override = SubResource("StandardMaterial3D_x6hi3")
+mesh = SubResource("CylinderMesh_dj4bw")
+skeleton = NodePath("../..")
+
+[node name="Cylinder9" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.05, 0, 0, 0, 2, 0, 0, 0, 0.05, 2, 0, 0)
+material_override = SubResource("StandardMaterial3D_x6hi3")
+mesh = SubResource("CylinderMesh_dj4bw")
+skeleton = NodePath("../..")
+
+[node name="Cylinder10" type="MeshInstance3D" parent="."]
+transform = Transform3D(-2.18557e-09, -2, 0, 0.05, -8.74228e-08, 0, 0, 0, 0.05, 0, 2, 0)
+material_override = SubResource("StandardMaterial3D_x6hi3")
+mesh = SubResource("CylinderMesh_dj4bw")
+skeleton = NodePath("../..")
+
+[node name="Cylinder11" type="MeshInstance3D" parent="."]
+transform = Transform3D(-2.18557e-09, -2, 0, 0.05, -8.74228e-08, 0, 0, 0, 0.05, 0, -2, 0)
+material_override = SubResource("StandardMaterial3D_x6hi3")
+mesh = SubResource("CylinderMesh_dj4bw")
+skeleton = NodePath("../..")

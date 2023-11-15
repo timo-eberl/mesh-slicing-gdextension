@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dt810cs2m1enn"]
+
+[ext_resource type="Shader" path="res://shaders/inner.gdshader" id="1_7wonl"]
+[ext_resource type="Texture2D" uid="uid://ceoi7rqiqm1ot" path="res://icon.svg" id="2_0sh4l"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_7wonl")
+shader_parameter/tex_albedo = ExtResource("2_0sh4l")

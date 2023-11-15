@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bpjxfhwlqmso"]
+
+[ext_resource type="Shader" path="res://shaders/inner_earth.gdshader" id="1_g1atg"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_g1atg")
+shader_parameter/color_core = Color(1.5, 1.5, 1.5, 1)
+shader_parameter/color_center = Color(0.8, 0.8, 0, 1)
+shader_parameter/color_outside = Color(1, 0, 0, 1)

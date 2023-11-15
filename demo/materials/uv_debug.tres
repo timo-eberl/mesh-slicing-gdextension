@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cc53p27vxjg7f"]
 
-[ext_resource type="Shader" path="res://uv_debug.gdshader" id="1_23lg5"]
+[ext_resource type="Shader" path="res://shaders/uv_debug.gdshader" id="1_23lg5"]
 
 [resource]
 render_priority = 0
