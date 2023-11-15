@@ -2,7 +2,7 @@
 
 This GDExtension implements Mesh Slicing. For usage see the demo project.
 
-<img src="mesh-slicing-demo.gif" alt="Mesh Slicing Animation" width="330"/>
+<img src="mesh-slicing-demo.gif" alt="Mesh Slicing Animation" width="320"/>
 
 ## Limitations
 
