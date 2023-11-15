@@ -44,6 +44,10 @@ scons
 godot --path ./demo --editor
 ```
 
+## Use it in your project
+
+Copy the contents of `demo/bin/` into your project.
+
 ## Editing with Visual Studio Code
 
 Add the `includePath` from the following code snippet to your `.vscode/c_cpp_properties.json`
