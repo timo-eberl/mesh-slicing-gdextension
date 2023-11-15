@@ -121,11 +121,11 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 			if (verts_are_above[i]) ++n_of_verts_above;
 		}
 		switch (n_of_verts_above) {
-			case 3: {
+			case 3: { // all vertices are above -> face is completely removed
 				++n_completely_removed;
 				break;
 			}
-			case 2: {
+			case 2: { // two vertices are above and one below -> face is removed and one new face is created
 				++n_two_thirds_removed;
 
 				Vector3 a0, a1, b, n0, n1; // above (remove), below (keep), new (add)
@@ -144,7 +144,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 
 				break;
 			}
-			case 1: {
+			case 1: { // one vertex are above and two below -> face is removed and two new faces are created
 				++n_one_third_removed;
 
 				Vector3 a, b0, b1, n0, n1; // above (remove), below (keep), new (add)
@@ -167,7 +167,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 
 				break;
 			}
-			case 0: {
+			case 0: { // all vertices are below -> face is kept
 				++n_not_removed;
 
 				for (size_t i = 0; i < 3; i++) {
@@ -178,22 +178,19 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 			}
 		}
 	}
-	UtilityFunctions::print("n_completely_removed: ", n_completely_removed);
-	UtilityFunctions::print("n_two_thirds_removed: ", n_two_thirds_removed);
-	UtilityFunctions::print("n_one_third_removed: ", n_one_third_removed);
-	UtilityFunctions::print("n_not_removed: ", n_not_removed);
 
-	UtilityFunctions::print("mdt->get_vertex_count(): ", mdt->get_vertex_count());
+	// UtilityFunctions::print("mdt->get_vertex_count(): ", mdt->get_vertex_count());
 	
-	Ref<MeshDataTool> mdt_new { new MeshDataTool() };
-	mdt_new->create_from_surface(st->commit(), 0);
-	UtilityFunctions::print("mdt_new->get_vertex_count(): ", mdt_new->get_vertex_count());
+	// Ref<MeshDataTool> mdt_new { new MeshDataTool() };
+	// mdt_new->create_from_surface(st->commit(), 0);
+	// UtilityFunctions::print("mdt_new->get_vertex_count(): ", mdt_new->get_vertex_count());
 
+	// shrinks the vertex array by creating an index array
 	st->index();
 
-	Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
-	mdt_new_optimized->create_from_surface(st->commit(), 0);
-	UtilityFunctions::print("mdt_new_optimized->get_vertex_count(): ", mdt_new_optimized->get_vertex_count());
+	// Ref<MeshDataTool> mdt_new_optimized { new MeshDataTool() };
+	// mdt_new_optimized->create_from_surface(st->commit(), 0);
+	// UtilityFunctions::print("mdt_new_optimized->get_vertex_count(): ", mdt_new_optimized->get_vertex_count());
 
 	return st->commit();
 }
