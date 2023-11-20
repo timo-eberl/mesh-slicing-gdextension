@@ -7,7 +7,6 @@ This GDExtension implements Mesh Slicing. For usage see the demo project.
 ## Limitations
 
 - Slicing non-convex meshes will produce unexpected results.
-- Only one surface per Mesh is supported.
 - Supported Mesh Types are: `ArrayMesh`, `PrimitiveMesh`
 - Only Triangle Meshes are supported (`PRIMITIVE_TRIANGLES`)
 - Only UVs and Normals are transferred from the original mesh.

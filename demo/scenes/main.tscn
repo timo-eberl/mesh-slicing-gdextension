@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://bx1vgheicnank"]
+[gd_scene load_steps=21 format=3 uid="uid://bx1vgheicnank"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_kmve1"]
 [ext_resource type="Material" uid="uid://cp8mors8fvy7j" path="res://materials/transparent.tres" id="2_xq8sf"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/slice_mesh.gd" id="5_wdtwf"]
 [ext_resource type="PackedScene" uid="uid://migofo6ctkfb" path="res://scenes/cutting_plane.tscn" id="6_5qxv0"]
 [ext_resource type="Material" uid="uid://bpjxfhwlqmso" path="res://materials/inner_earth.tres" id="6_a3guo"]
+[ext_resource type="ArrayMesh" uid="uid://cf0s20ov6cl8k" path="res://meshes/multi_surface_cube.mesh" id="6_d6j3i"]
 [ext_resource type="Material" uid="uid://cmani75d48ji2" path="res://materials/earth.tres" id="7_72lvl"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q0qmt"]
@@ -78,8 +79,23 @@ skeleton = NodePath("../..")
 script = ExtResource("5_wdtwf")
 plane_node = NodePath("../../CuttingPlane")
 
+[node name="MultiMeshCube" type="Node3D" parent="."]
+transform = Transform3D(0.493073, 0.141855, 0.311056, -0.100003, 0.58188, -0.106843, -0.326922, 0.0359581, 0.501825, -0.391652, 2.68381, -1.98945)
+
+[node name="UnslicedMesh" type="MeshInstance3D" parent="MultiMeshCube"]
+material_override = ExtResource("2_xq8sf")
+mesh = ExtResource("6_d6j3i")
+skeleton = NodePath("../..")
+
+[node name="SliceableMesh" type="SliceableMeshInstance3D" parent="MultiMeshCube" node_paths=PackedStringArray("plane_node")]
+inner_material = ExtResource("3_jvqs7")
+mesh = ExtResource("6_d6j3i")
+skeleton = NodePath("../..")
+script = ExtResource("5_wdtwf")
+plane_node = NodePath("../../CuttingPlane")
+
 [node name="Sphere" type="Node3D" parent="."]
-transform = Transform3D(-1.40259, 0, 1.42574, -1.01089, 1.41036, -0.994477, -1.0054, -1.41806, -0.989078, -0.70167, 3.34879, -0.874318)
+transform = Transform3D(-1.26233, -2.14577e-07, 1.28317, -0.909802, 1.26932, -0.895031, -0.904862, -1.27625, -0.890171, -1.66944, 3.34879, -0.723785)
 
 [node name="UnslicedMesh" type="MeshInstance3D" parent="Sphere"]
 transform = Transform3D(0.989999, 0, 0, 0, 0.99, 0, 0, 0, 0.99, 0, 0, 0)

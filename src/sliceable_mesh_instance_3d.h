@@ -3,6 +3,8 @@
 
 #include <godot_cpp/classes/mesh_instance3d.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/mesh_data_tool.hpp>
+#include <godot_cpp/classes/surface_tool.hpp>
 
 namespace godot {
 
@@ -25,7 +27,11 @@ public:
 	void slice_along_plane(const Plane p_plane);
 
 private:
-	Ref<ArrayMesh> slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane);
+	Ref<ArrayMesh> slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane) const;
+	void slice_surface_along_plane(
+		const Ref<MeshDataTool> p_mdt, const Ref<SurfaceTool> p_st_sliced, const Ref<SurfaceTool> p_st_lid,
+		Vector3 &p_pos_on_lid, bool &p_pos_on_lid_defined, const Plane p_plane_os
+	) const;
 };
 
 }
