@@ -43,6 +43,10 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 			Mesh::PRIMITIVE_TRIANGLES,
 			primitive_mesh->get_mesh_arrays()
 		);
+		for (size_t i = 0; i < array_mesh->get_surface_count(); i++) {
+			array_mesh->surface_set_material(i, mesh->surface_get_material(i));
+		}
+		
 
 		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane));
 	}
@@ -208,8 +212,11 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(const Ref<ArrayMe
 	st->index();
 	st_lid->index();
 
+	
 	st->commit(new_mesh); // commit sliced surface as a new surface
 	int32_t surface_count = new_mesh->get_surface_count();
+	if (surface_count > 0) new_mesh->surface_set_material(0, mdt->get_material());
+
 	st_lid->commit(new_mesh); // commit lid as a new surface
 	if (new_mesh->get_surface_count() > surface_count) new_mesh->surface_set_material(surface_count, m_inner_material);
 

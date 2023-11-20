@@ -30,10 +30,12 @@ albedo_color = Color(0, 0, 0, 1)
 size = Vector3(0.99, 0.99, 0.99)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4bnoe"]
+material = ExtResource("4_j6m5n")
 
 [sub_resource type="SphereMesh" id="SphereMesh_2k47p"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_wsgr3"]
+material = ExtResource("7_72lvl")
 radial_segments = 32
 rings = 16
 
@@ -41,6 +43,7 @@ rings = 16
 left_to_right = 1.6
 
 [sub_resource type="PrismMesh" id="PrismMesh_m3i2x"]
+material = ExtResource("4_j6m5n")
 left_to_right = 1.6
 
 [node name="Main" type="Node3D"]
@@ -72,7 +75,6 @@ inner_material = ExtResource("3_jvqs7")
 transform = Transform3D(1, 0, 0, 0, 1.35, 0, 0, 0, 3, 0.251684, 0.437373, -0.256671)
 mesh = SubResource("BoxMesh_4bnoe")
 skeleton = NodePath("../..")
-surface_material_override/0 = ExtResource("4_j6m5n")
 script = ExtResource("5_wdtwf")
 plane_node = NodePath("../../CuttingPlane")
 
@@ -90,7 +92,6 @@ inner_material = ExtResource("6_a3guo")
 transform = Transform3D(1, -2.98023e-08, 3.27826e-07, -2.98023e-08, 1, 0, -1.49012e-08, 1.49012e-08, 1, 0, 0, 0)
 mesh = SubResource("SphereMesh_wsgr3")
 skeleton = NodePath("../..")
-surface_material_override/0 = ExtResource("7_72lvl")
 script = ExtResource("5_wdtwf")
 plane_node = NodePath("../../CuttingPlane")
 
@@ -109,7 +110,6 @@ inner_material = ExtResource("3_jvqs7")
 transform = Transform3D(0.620053, 5.21541e-08, 0.78456, 0.141857, 0.983518, -0.112112, -0.771629, 0.180811, 0.609833, 0, 0, 0)
 mesh = SubResource("PrismMesh_m3i2x")
 skeleton = NodePath("../..")
-surface_material_override/0 = ExtResource("4_j6m5n")
 script = ExtResource("5_wdtwf")
 plane_node = NodePath("../../CuttingPlane")
 
