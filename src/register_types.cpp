@@ -30,7 +30,7 @@ GDExtensionBool GDE_EXPORT mesh_slicing_library_init(GDExtensionInterfaceGetProc
 
 	init_obj.register_initializer(initialize_mesh_slicing_module);
 	init_obj.register_terminator(uninitialize_mesh_slicing_module);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SERVERS);
 
 	return init_obj.init();
 }
