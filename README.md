@@ -14,7 +14,7 @@ This GDExtension implements Mesh Slicing. For usage see the demo project.
 
 ## Compatibility
 
-Godot 4.1
+Godot 4.2
 
 ## Cloning
 
