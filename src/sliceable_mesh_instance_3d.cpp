@@ -17,6 +17,7 @@ void SliceableMeshInstance3D::_bind_methods() {
 	ClassDB::add_property("SliceableMeshInstance3D", PropertyInfo(Variant::OBJECT, "inner_material", PROPERTY_HINT_RESOURCE_TYPE, "BaseMaterial3D,ShaderMaterial"), "set_inner_material", "get_inner_material");
 
 	ClassDB::bind_method(D_METHOD("slice_along_plane", "p_plane"), &SliceableMeshInstance3D::slice_along_plane);
+	ClassDB::bind_method(D_METHOD("slice_along_plane_indexed", "p_plane"), &SliceableMeshInstance3D::slice_along_plane_indexed);
 }
 
 SliceableMeshInstance3D::SliceableMeshInstance3D() : m_inner_material() { }
@@ -32,6 +33,14 @@ Ref<Material> SliceableMeshInstance3D::get_inner_material() const {
 }
 
 void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
+	this->slice_along_plane_p(p_plane, false);
+}
+
+void SliceableMeshInstance3D::slice_along_plane_indexed(const Plane p_plane) {
+	this->slice_along_plane_p(p_plane, true);
+}
+
+void SliceableMeshInstance3D::slice_along_plane_p(const Plane p_plane, const bool indexed) {
 	Ref<Mesh> mesh = this->get_mesh();
 
 	if (auto primitive_mesh = Object::cast_to<PrimitiveMesh>(mesh.ptr())) {
@@ -45,10 +54,10 @@ void SliceableMeshInstance3D::slice_along_plane(const Plane p_plane) {
 			array_mesh->surface_set_material(i, mesh->surface_get_material(i));
 		}
 
-		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane));
+		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane, indexed));
 	}
 	else if (auto array_mesh = Object::cast_to<ArrayMesh>(mesh.ptr())) {
-		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane));
+		this->set_mesh(this->slice_mesh_along_plane(array_mesh, p_plane, indexed));
 	}
 	else if (Object::cast_to<ImmediateMesh>(mesh.ptr()) != nullptr) {
 		WARN_PRINT("Cannot slice ImmediateMesh.");
@@ -74,7 +83,7 @@ void add_lid(
 }
 
 Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(
-	const Ref<ArrayMesh> p_array_mesh, const Plane p_plane
+	const Ref<ArrayMesh> p_array_mesh, const Plane p_plane, const bool indexed
 ) const {
 	// transform the plane to object space
 	Plane plane_os = this->get_global_transform().xform_inv(p_plane);
@@ -112,7 +121,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(
 
 		// shrinks the vertex array by creating an index array (triangle list)
 		// has a high performance penalty for big meshes
-		st_sliced->index();
+		if (indexed) st_sliced->index();
 		// commit sliced surface as a new surface
 		st_sliced->commit(new_mesh);
 		// if a surface was added, set material
@@ -124,7 +133,7 @@ Ref<ArrayMesh> SliceableMeshInstance3D::slice_mesh_along_plane(
 
 	// shrinks the vertex array by creating an index array (triangle list)
 	// has a high performance penalty for big meshes
-	st_lid->index();
+	if (indexed) st_lid->index();
 	// commit lid as a new surface
 	st_lid->commit(new_mesh);
 	// if a surface was added, set material

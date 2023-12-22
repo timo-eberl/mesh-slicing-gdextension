@@ -25,9 +25,14 @@ public:
 	Ref<Material> get_inner_material() const;
 
 	void slice_along_plane(const Plane p_plane);
+	// additionally shrinks the vertex array by creating an index array (triangle list), but takes significantly more time
+	void slice_along_plane_indexed(const Plane p_plane);
 
 private:
-	Ref<ArrayMesh> slice_mesh_along_plane(const Ref<ArrayMesh> p_array_mesh, const Plane p_plane) const;
+	void slice_along_plane_p(const Plane p_plane, const bool indexed);
+	Ref<ArrayMesh> slice_mesh_along_plane(
+		const Ref<ArrayMesh> p_array_mesh, const Plane p_plane, const bool indexed
+	) const;
 	void slice_surface_along_plane(
 		const Ref<MeshDataTool> p_mdt, const Ref<SurfaceTool> p_st_sliced, const Ref<SurfaceTool> p_st_lid,
 		Vector3 &p_pos_on_lid, bool &p_pos_on_lid_defined, const Plane p_plane_os
