@@ -1,0 +1,12 @@
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf
+
+# Turn off text-based EOL adaptations for various binary formats.
+*.jpg binary
+*.png binary
+*.gif binary
+
+# Image formats
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
